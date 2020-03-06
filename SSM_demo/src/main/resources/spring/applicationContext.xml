@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--扫描组件-->
+    <context:component-scan base-package="com.mok">
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+        <context:exclude-filter type="annotation" expression="org.springframework.web.bind.annotation.ControllerAdvice"/>
+    </context:component-scan>
+
+    <!--引入外部资源文件，并配置数据源-->
+    <context:property-placeholder location="classpath:Jdbc.properties"/>
+    <bean id="DataSource" class="com.alibaba.druid.pool.DruidDataSource">
+        <property name="driverClassName" value="${jdbc.driverClassName}" />
+        <property name="url" value="${jdbc.url}" />
+        <property name="username" value="${jdbc.username}" />
+        <property name="password" value="${jdbc.password}" />
+    </bean>
+
+    <!--配置JdbcTemplate操作数据库,有了mybatis就不再需要配置JdbcTemplate-->
+    <!-- <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+         <constructor-arg name="dataSource" value="#{DataSource}"></constructor-arg>
+     </bean> -->
+
+    <!--【配置基于注解的声明式事务①】配置事务管理器，让其控制住数据源里面的连接的关闭和提交-->
+    <!-- <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+         <property name="dataSource" ref="DataSource"></property>
+     </bean>  -->
+    <!--【配置基于注解的声明式事务②】基于xml配置，配置事务：哪些方法切入事务还要写入切入点表达式;-->
+    <!-- <aop:config>
+        transaction-manager="tm"
+        <aop:pointcut id="txPoint" expression="execution(* com.mok.Service.*.*(..))"/>
+        <aop:advisor advice-ref="" pointcut-ref="txPoint"/>
+    </aop:config> -->
+    <!--【配置基于注解的声明式事务③】配置事务增强、事务属性、事务建议;transaction-manager="tm":用于指定配置的事务管理器的id-->
+    <!--<tx:advice id="myTx" transaction-manager="tm">
+        <tx:attributes>
+            <tx:method name="*" rollback-for="java.lang.Exception"/>
+        </tx:attributes>
+    </tx:advice>-->
+
+    <!--创建SqlsessionFactory对象来建立Dao接口与相应的sql配置文件想联系-->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!--由于sqlSessionFactory是需要用到全局配置文件的，因此属性上要有全局配置文件-->
+        <property name="configLocation" value="classpath:mybatis/mybatis-config.xml"/>
+        <!--而实际全局配置文件内的所有信息都可在applicationContext.xml中配置-->
+        <property name="dataSource" ref="DataSource" />
+        <property name="mapperLocations" value="classpath:mybatis/mappers/*.xml"/>
+    </bean>
+
+    <!--我们要把每一个dao接口的实现加入到ioc容器中,运用整合包中的一个叫做映射配置文件扫描的类-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"></property>
+        <!--并且需要告诉它所需扫描哪些类的配置文件入ioc容器中-->
+        <property name="basePackage" value="com.mok.Dao"></property>
+    </bean>
+
+</beans>

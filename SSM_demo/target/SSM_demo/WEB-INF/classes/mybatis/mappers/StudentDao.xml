@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybaits.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.mok.Dao.StudentDao">
+
+    <!--一、自定义结果集resuleMap：自己定义每一列数据和javaBean的映射规则
+    type：指定为哪个javaBean自定义封装规则；
+    id：唯一标识，让别名在后面引用;
+    二、主键列提倡用id标签来指定:<id column="" property=""/>
+    column:指定哪一列是主键列；
+    property：指定student的哪个属性封装column这一数据;
+    三、普通列：<result property="" column=""/>;
+    property:之定义javaBean类的属性；
+    column：数据库中的属性名；
+    四：若使用了自定义结果集封装规则，则在<select>标签中不再使用resultType="com.mok.Component.Student"，而是使用resultMap="myStudent";
+    因为使用resultType="com.mok.Component.Student"则表示使用其默认规则，数据库的属性名与javaBean类是属性名必须一模一样-->
+    <resultMap id="myStudent" type="com.mok.Component.Student">
+        <!--  <id column="" property=""/> -->
+        <result property="name" column="name"/>
+        <result property="age" column="age"/>
+        <result property="email" column="email"/>
+    </resultMap>
+
+    <select id="findStudent" resultMap="myStudent">
+        select * from students where age=#{id}
+    </select>
+
+
+</mapper>

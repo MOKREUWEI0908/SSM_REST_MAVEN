@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--扫描组件,use-default-filters="false" 禁用默认的规则-->
+    <context:component-scan base-package="com.mok" use-default-filters="false">
+        <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+        <context:include-filter type="annotation" expression="org.springframework.web.bind.annotation.ControllerAdvice"/>
+    </context:component-scan>
+
+    <!--配置一个视图解析器-->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <!--前缀prefix；一般不将jsp文件放在webapp的新创建的文件夹pages下，因为这样访问页面的跳转的地址一直都会有/pages/，
+        从而会报404错误，如果真的想用pages文件夹，则里面放的只能是经过controller后跳转的页面才可。
+        第一次访问的页面只能放在webapp下；
+          <property name="prefix" value="/pages/"></property> -->
+        <property name="suffix" value=".jsp"></property>
+    </bean>
+
+    <!--配置文件上传解析器，id必须就是multipartResolve-->
+    <!-- <bean id="multipartResolve" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+         <property name="defaultEncoding" value="utf-8"></property>
+         <property name="maxUploadSize" value="#{1024*1024*20}"></property>
+     </bean> -->
+
+    <!--扫静态资源-->
+    <mvc:default-servlet-handler/>
+
+    <!--扫动态资源-->
+    <mvc:annotation-driven></mvc:annotation-driven>
+
+</beans>
